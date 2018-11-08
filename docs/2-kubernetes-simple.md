@@ -268,7 +268,7 @@ ExecStart=/home/michael/bin/kube-proxy \
 --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \
 ...
 ```
-## 10.Kube-dns部署
+## 10.Kube-dns部署(Master)
 ```shell
 # 执行部署
 kubectl create -f ~/kubernetes-starter/target/services/kube-dns.yaml

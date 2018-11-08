@@ -1,6 +1,6 @@
 # 一、预先准备环境
 ## 1. 准备服务器
-准备3台按配置计费的CentOS7云主机,信息如下:
+准备3台按配置计费的CentOS7云主机,信息如下:(使用内网ip)
 
 | 节点角色 | 外网IP | 内网IP | Hostname |
 | ------------ | ------------ | ------------ | ------------ |
@@ -34,10 +34,11 @@ EOF
 sysctl -p /etc/sysctl.d/k8s.conf
 
 # 配置host文件
-vim /etc/hosts
+cat <<EOF >>/etc/hosts
 192.168.0.32 k8s_master
 192.168.0.33 k8s_worker1
 192.168.0.34 k8s_worker2
+EOF
 ```
 ## 4.下载k8s二进制文件
 > [Kubernetes1.9][0]
@@ -50,7 +51,8 @@ mv kubernetes-bins bin
 > 下载[kubernetes-starter文件][1] 并上传所有节点
 
 ```shell
-#cd到之前下载的git代码目录
+git clone https://github.com/msun1996/kubernetes-starter.git
+#cd到git代码目录
 cd ~/kubernetes-starter
 #编辑属性配置（根据文件注释中的说明填写好每个key-value）
 vim config.properties

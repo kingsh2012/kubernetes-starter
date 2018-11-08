@@ -1,4 +1,11 @@
 # 三 带安全认证的完整集群部署
+## 0.Kubernetes 认证授权说明
+> kubernetes提供了多种认证方式，比如客户端证书、静态token、静态密码文件、ServiceAccountTokens等等。你可以同时使用一种或多种认证方式。只要通过任何一个都被认作是认证通过。下面几个常见的认证方式。
+ 
+*   **客户端证书认证** 客户端证书认证叫作TLS双向认证，也就是服务器客户端互相验证证书的正确性，在都正确的情况下协调通信加密方案。 为了使用这个方案，api-server需要用--client-ca-file选项来开启。
+*   **引导Token** 当我们有非常多的node节点时，手动为每个node节点配置TLS认证比较麻烦，这时就可以用到引导token的认证方式，前提是需要在api-server开启 experimental-bootstrap-token-auth 特性，客户端的token信息与预先定义的token匹配认证通过后，自动为node颁发证书。当然引导token是一种机制，可以用到各种场景中。
+*   **Service Account Tokens 认证** 有些情况下，我们希望在pod内部访问api-server，获取集群的信息，甚至对集群进行改动。针对这种情况，kubernetes提供了一种特殊的认证方式：Service Account。 Service Account 和 pod、service、deployment 一样是 kubernetes 集群中的一种资源，用户也可以创建自己的 Service Account。 ServiceAccount 主要包含了三个内容：namespace、Token 和 CA。namespace 指定了 pod 所在的 namespace，CA 用于验证 apiserver 的证书，token 用作身份验证。它们都通过 mount 的方式保存在 pod 的文件系统中。
+
 ## 1.环境准备
 ### 1.0停止所有服务(如果部署基础服务)
 ```shell
@@ -130,8 +137,8 @@ systemctl enable kube-scheduler.service
 systemctl start kube-scheduler.service
 journalctl -f -u kube-scheduler.service
 ```
-## 6.Calico部署(所有节点)
-### 6.1准备安全证书
+## 6.Calico部署
+### 6.1准备安全证书(主节点创建并分发给各节点)
 * calico/node 这个docker 容器运行时访问 etcd 使用证书
 * cni 配置文件中，cni 插件需要访问 etcd 使用证书
 * calicoctl 操作集群网络时访问 etcd 使用证书
@@ -150,8 +157,15 @@ cfssl gencert \
 -profile=kubernetes calico-csr.json | cfssljson -bare calico
 #我们最终要的是calico-key.pem和calico.pem
 ls
+
+# 需把以下目录文件下传给所有Worker节点,此处为简单直接将kubernets目录下传。
+# /etc/kubernetes/ca/ca.pem
+# /etc/kubernetes/ca/calico/calico.pem
+# /etc/kubernetes/ca/calico/calico-key.pem
+scp -r /etc/kubernetes/ root@192.168.0.34:/etc/kubernetes/
 ```
-### 6.2启动服务
+
+### 6.2启动服务(所有节点)
 ```shell
 cp ~/kubernetes-starter/target/all-node/kube-calico.service /lib/systemd/system/
 systemctl enable kube-calico.service
@@ -240,7 +254,7 @@ kubectl config use-context default --kubeconfig=bootstrap.kubeconfig
 #将刚生成的文件移动到合适的位置
 mv bootstrap.kubeconfig /etc/kubernetes/
 ```
-### 8.3启动kubele服务
+### 8.3启动kubele服务（Worker）
 ```shell
 #确保相关目录存在
 mkdir -p /var/lib/kubelet
@@ -253,10 +267,15 @@ cp ~/kubernetes-starter/target/worker-node/kubelet.service /lib/systemd/system/
 cp ~/kubernetes-starter/target/worker-node/10-calico.conf /etc/cni/net.d/
 
 systemctl enable kubelet.service
-service kubelet start
+systemctl start kubelet.service
 journalctl -f -u kubelet
 ```
-## 9.Kube-proxy部署
+### 8.4 Master允许worker加入(Master)
+```shell
+# 启动kubelet之后到master节点允许worker加入
+kubectl get csr|grep 'Pending' | awk '{print $1}'| xargs kubectl certificate approve
+```
+## 9.Kube-proxy部署(Worker)
 ### 9.1准备证书
 ```shell
 #proxy证书放在这
@@ -307,18 +326,18 @@ mkdir -p /var/lib/kube-proxy
 cp ~/kubernetes-starter/target/worker-node/kube-proxy.service /lib/systemd/system/
 
 systemctl enable kube-proxy.service
-service kube-proxy start
+systemctl start kube-proxy.service
 journalctl -f -u kube-proxy
 ```
-## 10.Kube-dns部署
-> kube-dns有些特别，因为它本身是运行在kubernetes集群中，以kubernetes应用的形式运行。所以它的认证授权方式跟之前的组件都不一样。它需要用到service account认证和RBAC授权。
-**service account认证：**
-每个service account都会自动生成自己的secret，用于包含一个ca，token和secret，用于跟api-server认证
-**RBAC授权：**
+## 10.Kube-dns部署(Master)
+> kube-dns有些特别，因为它本身是运行在kubernetes集群中，以kubernetes应用的形式运行。所以它的认证授权方式跟之前的组件都不一样。它需要用到service account认证和RBAC授权。  
+**service account认证：**  
+每个service account都会自动生成自己的secret，用于包含一个ca，token和secret，用于跟api-server认证  
+**RBAC授权：**  
 权限、角色和角色绑定都是kubernetes自动创建好的。我们只需要创建一个叫做kube-dns的 ServiceAccount即可，官方现有的配置已经把它包含进去了。
 
 ```shell
-$ kubectl create -f ~/kubernetes-starter/target/services/kube-dns.yaml
+kubectl create -f ~/kubernetes-starter/target/services/kube-dns.yaml
 # 启动是否成功
-$ kubectl -n kube-system get pods
+kubectl -n kube-system get pods
 ```
