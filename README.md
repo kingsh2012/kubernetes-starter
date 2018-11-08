@@ -11,9 +11,9 @@
 
 
 
-* 学习自慕课网[《Docker + Kubernetes微服务容器化实践》]
-  [1]: docs/0-knowledge.md
-  [1]: docs/1-pre.md
-  [2]: docs/2-kubernetes-simple.md
-  [3]: docs/3-kubernetes-with-ca.md
-  [4]: docs/4-microservice-deploy.md
+* 学习自慕课网[《Docker + Kubernetes微服务容器化实践》]  
+  [0]: https://github.com/msun1996/kubernetes-starter/blob/master/docs/0-knowledge.md  
+  [1]: https://github.com/msun1996/kubernetes-starter/blob/master/docs/1-pre.md  
+  [2]: https://github.com/msun1996/kubernetes-starter/blob/master/docs/2-kubernetes-simple.md  
+  [3]: https://github.com/msun1996/kubernetes-starter/blob/master/docs/3-kubernetes-with-ca.md  
+  [4]: https://github.com/msun1996/kubernetes-starter/blob/master/docs/4-microservice-deploy.md  
