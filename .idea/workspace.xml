@@ -3,9 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="722c1e53-8da7-43d2-8833-a4d4bc05208d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/1-pre.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/1-pre.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/2-kubernetes-simple.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/2-kubernetes-simple.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/3-kubernetes-with-ca.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/3-kubernetes-with-ca.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -17,9 +14,12 @@
     <session id="-1162706045">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
+          <entry key="project.closed" value="2" />
+          <entry key="project.open.time.1" value="1" />
+          <entry key="project.open.time.28" value="1" />
           <entry key="project.open.time.3" value="1" />
           <entry key="project.open.time.37" value="1" />
-          <entry key="project.opened" value="2" />
+          <entry key="project.opened" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -49,20 +49,7 @@
     </session>
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/docs/3-kubernetes-with-ca.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="278">
-                <caret line="270" column="24" selection-start-line="270" selection-start-column="17" selection-end-line="270" selection-end-column="24" />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -107,8 +94,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -116,22 +101,20 @@
               <item name="kubernetes-starter" type="b2602c69:ProjectViewProjectNode" />
               <item name="kubernetes-starter" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="kubernetes-starter" type="b2602c69:ProjectViewProjectNode" />
-              <item name="kubernetes-starter" type="462c0819:PsiDirectoryNode" />
-              <item name="docs" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
       <pane id="AndroidView" />
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1541668051979" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1541728326170" />
+    <property name="go.gopath.indexing.explicitly.defined" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -169,18 +152,20 @@
       <option name="presentableId" value="Default" />
       <updated>1541658010239</updated>
       <workItem from="1541658011833" duration="9020000" />
-      <workItem from="1541669357723" duration="1261000" />
+      <workItem from="1541669357723" duration="2025000" />
+      <workItem from="1541676205948" duration="819000" />
+      <workItem from="1541727967303" duration="255000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10281000" />
+    <option name="totallyTimeSpent" value="12119000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="960" y="0" width="960" height="1032" extended-state="1" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.41647854" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.4288939" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -267,8 +252,8 @@
     <entry file="file://$PROJECT_DIR$/docs/3-kubernetes-with-ca.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="278">
-            <caret line="270" column="24" selection-start-line="270" selection-start-column="17" selection-end-line="270" selection-end-column="24" />
+          <first_editor relative-caret-position="390">
+            <caret line="273" column="8" lean-forward="true" selection-start-line="273" selection-start-column="8" selection-end-line="273" selection-end-column="8" />
           </first_editor>
           <second_editor />
         </state>
