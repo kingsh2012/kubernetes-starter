@@ -6,10 +6,6 @@
 ## [三、完整集群部署 - kubernetes-with-ca][3]
 
 
-
-
-
-
 * 学习自慕课网《Docker + Kubernetes微服务容器化实践》
 
   [0]: https://github.com/msun1996/kubernetes-starter/blob/master/docs/0-knowledge.md  
