@@ -9,7 +9,7 @@ cd
 mkdir -p nodes
 ############### 使用前需填写信息 ######################
 # 集群信息填写
-# etcd 以etcd开头(hostname要对应)
+# etcd 以etcd开头
 # master 以k8s-master开头
 # worker 以k8s-worker开头
 # vip 指虚拟IP
