@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #############################
-# kubernetes集群自动化部署主脚本(运行在任意节点，此节点要求有外网)
+# kubernetes集群自动化部署主脚本(运行在任意节点，此节点要求有外网，此节点务必不要提前yum 安装docker,负责会导致下载rpm包缺少依赖)
 # 负责各节点资源分发
 # bootstrap.sh
 ############### 资源目录 ##############
@@ -9,8 +9,9 @@ cd
 mkdir -p nodes
 ############### 使用前需填写信息 ######################
 # 集群信息填写
-# etcd 以etcd开头
+# etcd 以etcd开头(hostname要与主机保持一致)
 # master 以k8s-master开头
+# worker 以k8s-worker开头
 # vip 指虚拟IP
 cat > nodes/info << EOF
 192.168.0.14 vip
@@ -33,7 +34,7 @@ echo $token >nodes/token
 #### etcd资源 ####
 # etcd节点所需资源
 wget https://github.com/etcd-io/etcd/releases/download/v3.3.10/etcd-v3.3.10-linux-amd64.tar.gz
-mv etcd-v3.3.10-linux-amd64.tar.gz nodes/
+echo no | mv etcd-v3.3.10-linux-amd64.tar.gz nodes/
 
 #### yum 包资源 ####
 # K8s所需yum包
@@ -49,6 +50,8 @@ EOF
 
 yum install yum-plugin-downloadonly -y
 yum -y install --downloadonly --downloaddir=nodes docker kubelet-1.11.1 kubeadm-1.11.1 kubectl-1.11.1
+yum install docker -y
+systemctl enable docker && systemctl start docker
 
 #### 镜像资源 ####
 # dockerHub拉取镜像,重tag
@@ -69,7 +72,7 @@ wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-
 imageName=`cat kube-flannel.yml | grep image | awk '{print $2}'| uniq | grep amd64 |xargs`
 docker pull $imageName
 docker save -o nodes/flannel.tar $imageName
-mv kube-flannel.yml nodes/
+echo no | mv kube-flannel.yml nodes/
 
 #### master config.yml配置文件 ####
 export VIP=`cat nodes/info | grep vip | awk '{print $1}'`
@@ -103,15 +106,15 @@ EOF
 
 wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
 chmod +x cfssl_linux-amd64
-mv cfssl_linux-amd64 /usr/local/bin/cfssl
+echo no | mv cfssl_linux-amd64 /usr/local/bin/cfssl
 
 wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
 chmod +x cfssljson_linux-amd64
-mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
+echo no | mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
 
 wget https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64
 chmod +x cfssl-certinfo_linux-amd64
-mv cfssl-certinfo_linux-amd64 /usr/local/bin/cfssl-certinfo
+echo no | mv cfssl-certinfo_linux-amd64 /usr/local/bin/cfssl-certinfo
 
 cat > ca-config.json <<EOF
 {
@@ -182,7 +185,7 @@ cfssl gencert -ca=ca.pem \
   -config=ca-config.json \
   -profile=kubernetes etcd-csr.json | cfssljson -bare etcd
 
-cp etcd.pem etcd-key.pem ca.pem nodes/
+echo no | cp etcd.pem etcd-key.pem ca.pem nodes/
 
 ######################### 节点运行脚本文件 ###########################
 
@@ -208,28 +211,22 @@ sysctl -p /etc/sysctl.d/k8s.conf
 # Swap分区关闭
 swapoff -a
 sed -ie 's/.*swap.*/#&/' /etc/fstab
-
 cat nodes/info >>/etc/hosts
-
 # 获取主机IP
 export NODE_IP=\`ifconfig eth | grep netmask| awk '{print \$2}'\`
 # 获取主机域名
 export NODE_NAME=\`cat nodes/info | awk '\$1=="'\$NODE_IP'"{print \$2}'\`
 # 获取所有ETCD主机
 export ETCD_NODES=\`cat nodes/info | grep etcd | awk '{print \$2"=https://"\$1":2380"}'| xargs| sed 's/ /,/g'\`
-
 #### ETCD部署 ####
 cd nodes/
-
 # 证书
 mkdir -p /etc/etcd/ssl
-cp etcd.pem etcd-key.pem ca.pem /etc/etcd/ssl/
-
+echo no | cp etcd.pem etcd-key.pem ca.pem /etc/etcd/ssl/
 # 解压部署
 tar -xvf etcd-v3.3.10-linux-amd64.tar.gz
-mv etcd-v3.3.10-linux-amd64/etcd* /usr/local/bin/
+echo no | mv etcd-v3.3.10-linux-amd64/etcd* /usr/local/bin/
 mkdir -p /var/lib/etcd
-
 cat > etcd.service <<EOF
 [Unit]
 Description=Etcd Server
@@ -237,7 +234,6 @@ After=network.target
 After=network-online.target
 Wants=network-online.target
 Documentation=https://github.com/coreos
-
 [Service]
 Type=notify
 WorkingDirectory=/var/lib/etcd/
@@ -260,12 +256,10 @@ ExecStart=/usr/local/bin/etcd \\
 Restart=on-failure
 RestartSec=5
 LimitNOFILE=65536
-
 [Install]
 WantedBy=multi-user.target
 EOF
-
-mv etcd.service /etc/systemd/system/
+echo no | mv etcd.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable etcd
 systemctl start etcd
@@ -293,32 +287,25 @@ sysctl -p /etc/sysctl.d/k8s.conf
 # Swap分区关闭
 swapoff -a
 sed -ie 's/.*swap.*/#&/' /etc/fstab
-
 cat nodes/info >>/etc/hosts
-
 # 获取主机IP
 export NODE_IP=\`ifconfig eth | grep netmask| awk '{print \$2}'\`
 # 获取主机域名
 export NODE_NAME=\`cat nodes/info | awk '\$1=="'\$NODE_IP'"{print \$2}'\`
-
 mkdir -p /etc/etcd/ssl
-
 #### K8sMaster节点部署 ####
 cd nodes/
 # 安装包
 rpm -ivh *.rpm --nodeps --force
 systemctl enable docker && systemctl start docker
 systemctl enable kubelet && systemctl start kubelet
-
 # 载入镜像
 export images=\`ls | grep .tar$\`
 for image in \${images[@]} ; do
     echo \$image
     docker load -i \$image
 done
-
-mv ca.pem etcd.pem etcd-key.pem /etc/etcd/ssl
-
+echo no | mv ca.pem etcd.pem etcd-key.pem /etc/etcd/ssl
 sed -ie 's/\$NODE_IP/'\$NODE_IP'/g' config.yaml
 kubeadm init --config config.yaml
 export KUBECONFIG=/etc/kubernetes/admin.conf
@@ -347,20 +334,16 @@ sysctl -p /etc/sysctl.d/k8s.conf
 # Swap分区关闭
 swapoff -a
 sed -ie 's/.*swap.*/#&/' /etc/fstab
-
 cat nodes/info >>/etc/hosts
-
 # 获取主机IP
 export NODE_IP=\`ifconfig eth | grep netmask| awk '{print \$2}'\`
 # 获取主机域名
 export NODE_NAME=\`cat nodes/info | awk '\$1=="'\$NODE_IP'"{print \$2}'\`
-
 cd nodes/
 # 安装包
 rpm -ivh *.rpm --nodeps --force
 systemctl enable docker && systemctl start docker
 systemctl enable kubelet && systemctl start kubelet
-
 # 载入镜像
 export images=\`ls | grep .tar$\`
 for image in \${images[@]} ; do
@@ -371,7 +354,6 @@ done
 export master=\`cat info | grep master | awk '{print \$1}' | xargs | awk '{print \$1}'\`
 export token=\`cat token\`
 kubeadm join --token \$token \$master:6443 --discovery-token-unsafe-skip-ca-verification
-
 BOF
 
 ################# 所有资源分发 ######################
